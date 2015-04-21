@@ -84,7 +84,7 @@ public class ClientFrame extends JFrame {
 		board.add(top, BorderLayout.NORTH);
 
 		setUpPics();
-		fillPics();
+		//fillPics();
 		
 		Client client = new Client(socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
 		
@@ -145,6 +145,7 @@ public class ClientFrame extends JFrame {
 									// PS.println("GO!");
 								}
 							}
+							pw.writeObject(backOfCards);
 							pw = client.getSocketThread().getOut();
 							pw.println(socketMessage);
 							pw.println(p1score);

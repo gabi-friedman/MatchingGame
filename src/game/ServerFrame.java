@@ -86,7 +86,7 @@ public class ServerFrame extends JFrame {
 		setUpPics();
 		fillPics();
 		
-		Server server = new Server(socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
+		Server server = new Server(bottomImage, socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
 		
 
 		/*
