@@ -3,117 +3,140 @@ package game;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.net.URL;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextPane;
+import javax.swing.Timer;
 
 public class MemoryFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JButton cards[][] = new JButton[4][6];
-	private ImageIcon picsOnCards[][] = new ImageIcon[4][6];
-	private ArrayList<ImageIcon> pics = new ArrayList<ImageIcon>();
-	private ImageIcon selected;
+	private ImageIcon[] images = new ImageIcon[24];
+	private ImageIcon[][] bottomImage = new ImageIcon[4][6];
+	private Random random = new Random();
+	private int player1Pionts = 0;
+	private int player2Pionts = 0;
+	private ArrayList<String> choices = new ArrayList<String>();
+	private int clickNum = 1;
 	private int previ;
 	private int prevj;
-	private ImageIcon defaultPic = new ImageIcon("qmark.png");
-	private int p1score;
-	private int p2score;
-	Random picNum = new Random();
+	private JLabel label1;
+	private JLabel label2;
+	private ImageIcon Q = new ImageIcon("./qMark.png");
+	private ImageIcon firstCard;
+	private ImageIcon secondCard;
+	private String socketMessage = "GO!";
+	private BufferedReader BR;
+	private PrintStream PS;
+	private int tempi;
+	private int tempj;
 
 	public MemoryFrame() {
-		setSize(700,600);
+		setSize(700, 600);
 		setTitle("Memory");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 
-		
 		Container board = getContentPane();
 		board.setLayout(new BorderLayout());
-		
-		final JLabel background = new JLabel(new ImageIcon("./congrats2.png"));
-		background.setLayout(new GridLayout(4,6));
-		this.setContentPane(background);
 
-		Container score = new Container();
-		score.setLayout(new BorderLayout());
-		JTextPane p1 = new JTextPane();
-		p1.setText("Player 1: " + p1score);
-		JTextPane p2 = new JTextPane();
-		p2.setText("Player 2: " + p2score);
-		score.add(p1, BorderLayout.WEST);
-		score.add(p2, BorderLayout.EAST);
-		board.add(score,BorderLayout.SOUTH);
-		
-		Container game = new Container();
-		board.add(game, BorderLayout.CENTER);
-		
-		ActionListener listener = new ActionListener(){
+		final JLabel background = new JLabel(new ImageIcon("./congrats2.png"));
+		board.add(background, BorderLayout.CENTER);
+		background.setLayout(new GridLayout(4, 6));
+		board.setBackground(Color.WHITE);
+		Container players = new Container();
+		players.setLayout(new GridLayout(1, 2));
+		board.add(players, BorderLayout.SOUTH);
+		label1 = new JLabel("Player 1:        " + player1Pionts);
+		label2 = new JLabel("Player 2:        " + player2Pionts);
+		label1.setBackground(Color.BLACK);
+		label1.setForeground(Color.WHITE);
+		label1.setFont(new Font("Buxton Sketch", Font.BOLD, 25));
+		label1.setOpaque(true);
+		label2.setBackground(Color.BLACK);
+		label2.setForeground(Color.WHITE);
+		label2.setFont(new Font("Buxton Sketch", Font.BOLD, 25));
+		label2.setOpaque(true);
+		players.add(label1);
+		players.add(label2);
+
+		Container top = new Container();
+		top.setLayout(new BorderLayout());
+		JLabel topMessage = new JLabel(socketMessage, JLabel.CENTER);
+		top.add(topMessage, BorderLayout.CENTER);
+		board.add(top, BorderLayout.NORTH);
+
+		setUpPics();
+		fillPics();
+
+		/*
+		 * try { ServerSocket serverSocket = new ServerSocket(5643); Socket
+		 * socket = serverSocket.accept(); InputStreamReader inputStream = new
+		 * InputStreamReader(socket.getInputStream()); BR = new
+		 * BufferedReader(inputStream); socketMessage = BR.readLine(); if
+		 * (socketMessage != null) { PS = new
+		 * PrintStream(socket.getOutputStream()); } } catch (Exception e) {
+		 * e.printStackTrace(); }
+		 */
+
+		ActionListener listener = new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent event){
-				for(int i=0; i<cards.length;i++){
-					for(int j=0;j<cards[i].length;j++){
-						if(event.getSource().equals(cards[i][j])){
-							//regardless turn over the card
-							cards[i][j].setIcon(picsOnCards[i][j]);
-							//if this is the first selection
-							if(selected == null){
-								selected = picsOnCards[i][j];
+			public void actionPerformed(ActionEvent event) {
+				for (int i = 0; i < cards.length; i++) {
+					for (int j = 0; j < cards[i].length; j++) {
+						if (event.getSource().equals(cards[i][j])) {
+							// Action Listrener not ready yet!!!!!
+							// PS.println("WAIT...");
+							if (clickNum == 1) {
+								cards[i][j].setIcon(bottomImage[i][j]);
+								firstCard = (ImageIcon) cards[i][j].getIcon();
 								previ = i;
 								prevj = j;
+								clickNum = 2;
 							}
-							//if second selection  & = to the 1st
-							else if (selected.equals(picsOnCards[i][j])){
-								try {
-									Thread.sleep(700);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+							if ((clickNum == 2) && (!cards[i][j].equals(cards[previ][prevj]))) {
+								tempi = i;
+								tempj = j;
+								cards[i][j].setIcon(bottomImage[i][j]);
+								secondCard = (ImageIcon) cards[i][j].getIcon();
+								if (secondCard.getImage().equals(firstCard.getImage())) {
+									cards[i][j].setContentAreaFilled(false);
+									cards[i][j].setBorderPainted(false);
+									cards[i][j].setIcon(new ImageIcon(""));
+									cards[i][j].setEnabled(false);
+									cards[previ][prevj].setContentAreaFilled(false);
+									cards[previ][prevj].setBorderPainted(false);
+									cards[previ][prevj].setIcon(new ImageIcon(""));
+									cards[previ][prevj].setEnabled(false);
+									label1.setText("Player 1:        " + (++player1Pionts));
+									clickNum = 1;
+									break;
+								} else {
+									final Timer timer = new Timer(2000, new ActionListener() {
+										@Override
+										public void actionPerformed(ActionEvent arg0) {
+											cards[tempi][tempj].setIcon(Q);
+											cards[previ][prevj].setIcon(Q);
+										}
+									});
+									timer.setRepeats(false);
+									timer.start();// Only execute once
+									clickNum = 1;
+									// PS.println("GO!");
 								}
-								cards[i][j].setText("MATCH!");
-								cards[previ][prevj].setText("MATCH!");
-								try {
-									Thread.sleep(700);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								cards[i][j].setContentAreaFilled(false);
-								cards[i][j].setBorderPainted(false);
-								cards[i][j].setText("");
-								cards[previ][prevj].setText("");
-								cards[previ][prevj].setContentAreaFilled(false);
-								cards[previ][prevj].setBorderPainted(false);
-								selected = null;
-							}
-							//if second selection & != to the 1st
-							else if (!selected.equals(picsOnCards[i][j])){
-								try {
-									Thread.sleep(2500);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								selected = null;
-								cards[i][j].setIcon(defaultPic);
-								cards[previ][prevj].setIcon(defaultPic);
 							}
 						}
 					}
@@ -121,73 +144,61 @@ public class MemoryFrame extends JFrame {
 			}
 		};
 
-		//create buttons
-		int counter = 0;
-		for(int i=0; i<cards.length;i++){
-			for(int j=0;j<cards[i].length;j++){
-				counter++;
-				cards[i][j] = new JButton();
-				cards[i][j].setIcon(defaultPic);
+		// create buttons
+		for (int i = 0; i < cards.length; i++) {
+			for (int j = 0; j < cards[i].length; j++) {
+				cards[i][j] = new JButton(Q);
+				cards[i][j].setForeground(Color.GREEN);
+				if (i % 2 == 0 && j % 2 == 0 || i % 2 != 0 && j % 2 != 0) {
+					cards[i][j].setBackground(new Color(0, 102, 255));
+				} else {
+					cards[i][j].setBackground(new Color(0, 51, 204));
+				}
+
 				cards[i][j].addActionListener(listener);
 				background.add(cards[i][j]);
 			}
 		}
 
-
 	}
 
-	public void makePics(){
-		ImageIcon a0  = new ImageIcon("acm.png");
-		ImageIcon a1  = new ImageIcon("android.png");
-		ImageIcon a2  = new ImageIcon("androidstudio.png");
-		ImageIcon a3  = new ImageIcon("apple.jpg");
-		ImageIcon a4  = new ImageIcon("chrome.png");
-		ImageIcon a5  = new ImageIcon("drjava.png");
-		ImageIcon a6  = new ImageIcon("eclipse.jpg");
-		ImageIcon a7  = new ImageIcon("java.png");
-		ImageIcon a8  = new ImageIcon("linux.png");
-		ImageIcon a9  = new ImageIcon("Octocat.jpg");
-		ImageIcon a10 = new ImageIcon("stack overflow.png");
-		ImageIcon a11 = new ImageIcon("windows.png");
-		pics.add(a0); 
-		pics.add(a1); 
-		pics.add(a2); 
-		pics.add(a3); 
-		pics.add(a4); 
-		pics.add(a5); 
-		pics.add(a6);
-		pics.add(a7); 
-		pics.add(a8); 
-		pics.add(a9); 
-		pics.add(a10); 
-		pics.add(a11);
-		pics.add(a0); 
-		pics.add(a1); 
-		pics.add(a2); 
-		pics.add(a3); 
-		pics.add(a4); 
-		pics.add(a5); 
-		pics.add(a6);
-		pics.add(a7); 
-		pics.add(a8); 
-		pics.add(a9); 
-		pics.add(a10); 
-		pics.add(a11);
-	}
+	public void setUpPics() {
+		// add to array
+		int counter = 1;
+		for (int i = 0; i < images.length; i++) {
+			images[i] = new ImageIcon("./pic" + (counter) + ".png");
+			i++;
+			images[i] = new ImageIcon("./pic" + (counter) + ".png");
+			counter++;
+		}
 
-	public void placePics(){
-		makePics();
-		for(int i = 0; i < picsOnCards.length; i ++){
-			for(int j = 0; j < picsOnCards[i].length; j++){
-				//i think this random generates a # bt 1 and the length of the list
-				int next = picNum.nextInt(pics.size());
-				picsOnCards[i][j] = pics.get(next);
-				pics.remove(next);
+		String num;
+		for (int i = 0; i < cards.length; i++) {
+			for (int j = 0; j < cards[i].length; j++) {
+				num = i + "" + j;
+				choices.add(num);
 			}
-		}		
+		}
+
 	}
 
-	public static void main(String[] args){
+	public void fillPics() {
+		for (int i = 0; i < images.length; i++) {
+			int randomI;
+			int randomJ;
+			String location;
+			do {
+				randomI = random.nextInt(5);
+				randomJ = random.nextInt(7);
+				location = String.valueOf(randomI) + String.valueOf(randomJ);
+			} while (!choices.contains(location));
+			choices.remove(String.valueOf(randomI) + String.valueOf(randomJ));
+			bottomImage[Integer.parseInt(String.valueOf(location.charAt(0)))][Integer.parseInt(String.valueOf(location
+					.charAt(1)))] = images[i];
+		}
+	}
+
+	public static void main(String[] args) {
 		MemoryFrame frame = new MemoryFrame();
 		frame.setVisible(true);
 	}
