@@ -19,7 +19,7 @@ public class Server{
 	private SocketThread thread;
 
 	public Server(String socketMessage, int p1score, int p2score, int previ, int prevj, int tempi, int tempj) throws IOException {
-		serverSocket = new ServerSocket(1111);
+		serverSocket = new ServerSocket(3232);
 		this.socketMessage = socketMessage;
 		this.p1score = p1score;
 		this.p2score = p2score;

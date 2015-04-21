@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -45,8 +46,9 @@ public class ServerFrame extends JFrame {
 	private PrintStream PS;
 	private int tempi;
 	private int tempj;
+	private PrintWriter pw;
 
-	public ServerFrame() {
+	public ServerFrame() throws IOException {
 		setSize(700, 600);
 		setTitle("Memory");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -83,14 +85,10 @@ public class ServerFrame extends JFrame {
 
 		setUpPics();
 		fillPics();
-
-		try {
-			Server server = new Server(socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		
+		Server server = new Server(socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
+		
+
 		/*
 		 * try { ServerSocket serverSocket = new ServerSocket(5643); Socket
 		 * socket = serverSocket.accept(); InputStreamReader inputStream = new
@@ -147,6 +145,15 @@ public class ServerFrame extends JFrame {
 									// PS.println("GO!");
 								}
 							}
+							pw = server.getSocketThread().getOut();
+							pw.println(socketMessage);
+							pw.println(p1score);
+							pw.println(p2score);
+							pw.println(previ);
+							pw.println(prevj);
+							pw.println(tempi);
+							pw.println(tempj);
+							pw.flush();
 						}
 					}
 				}
@@ -207,7 +214,7 @@ public class ServerFrame extends JFrame {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		ServerFrame frame = new ServerFrame();
 		frame.setVisible(true);
 	}

@@ -8,12 +8,15 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -43,8 +46,9 @@ public class ClientFrame extends JFrame {
 	private PrintStream PS;
 	private int tempi;
 	private int tempj;
+	private PrintWriter pw;
 
-	public ClientFrame() {
+	public ClientFrame() throws IOException {
 		setSize(700, 600);
 		setTitle("Memory");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,6 +85,9 @@ public class ClientFrame extends JFrame {
 
 		setUpPics();
 		fillPics();
+		
+		Client client = new Client(socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
+		
 
 		/*
 		 * try { ServerSocket serverSocket = new ServerSocket(5643); Socket
@@ -138,9 +145,19 @@ public class ClientFrame extends JFrame {
 									// PS.println("GO!");
 								}
 							}
+							pw = client.getSocketThread().getOut();
+							pw.println(socketMessage);
+							pw.println(p1score);
+							pw.println(p2score);
+							pw.println(previ);
+							pw.println(prevj);
+							pw.println(tempi);
+							pw.println(tempj);
+							pw.flush();
 						}
 					}
 				}
+				
 			}
 		};
 
@@ -198,7 +215,7 @@ public class ClientFrame extends JFrame {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		ClientFrame frame = new ClientFrame();
 		frame.setVisible(true);
 	}

@@ -18,7 +18,7 @@ public class Client {
 	private SocketThread thread;
 
 	public Client(String socketMessage, int p1score, int p2score, int previ, int prevj, int tempi, int tempj) throws UnknownHostException, IOException {
-		Socket socket = new Socket("localhost", 1111);
+		Socket socket = new Socket("localhost", 3232);
 		this.socketMessage = socketMessage;
 		this.p1score = p1score;
 		this.p2score = p2score;
