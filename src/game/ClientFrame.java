@@ -20,7 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.Timer;
 
-public class MemoryFrame extends JFrame {
+public class ClientFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JButton cards[][] = new JButton[4][6];
@@ -44,7 +44,7 @@ public class MemoryFrame extends JFrame {
 	private int tempi;
 	private int tempj;
 
-	public MemoryFrame() {
+	public ClientFrame() {
 		setSize(700, 600);
 		setTitle("Memory");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -98,7 +98,7 @@ public class MemoryFrame extends JFrame {
 				for (int i = 0; i < cards.length; i++) {
 					for (int j = 0; j < cards[i].length; j++) {
 						if (event.getSource().equals(cards[i][j])) {
-							// Action Listrener not ready yet!!!!!
+							// Action Listener not ready yet!!!!!
 							// PS.println("WAIT...");
 							if (clickNum == 1) {
 								cards[i][j].setIcon(bottomImage[i][j]);
@@ -199,7 +199,7 @@ public class MemoryFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		MemoryFrame frame = new MemoryFrame();
+		ClientFrame frame = new ClientFrame();
 		frame.setVisible(true);
 	}
 
