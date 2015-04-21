@@ -27,15 +27,15 @@ public class MemoryFrame extends JFrame {
 	private ImageIcon[] images = new ImageIcon[24];
 	private ImageIcon[][] bottomImage = new ImageIcon[4][6];
 	private Random random = new Random();
-	private int player1Pionts = 0;
-	private int player2Pionts = 0;
+	private int p1score = 0;
+	private int p2score = 0;
 	private ArrayList<String> choices = new ArrayList<String>();
 	private int clickNum = 1;
 	private int previ;
 	private int prevj;
 	private JLabel label1;
 	private JLabel label2;
-	private ImageIcon Q = new ImageIcon("./qMark.png");
+	private ImageIcon Q = new ImageIcon("./qmark.png");
 	private ImageIcon firstCard;
 	private ImageIcon secondCard;
 	private String socketMessage = "GO!";
@@ -60,8 +60,8 @@ public class MemoryFrame extends JFrame {
 		Container players = new Container();
 		players.setLayout(new GridLayout(1, 2));
 		board.add(players, BorderLayout.SOUTH);
-		label1 = new JLabel("Player 1:        " + player1Pionts);
-		label2 = new JLabel("Player 2:        " + player2Pionts);
+		label1 = new JLabel("Player 1:        " + p1score);
+		label2 = new JLabel("Player 2:        " + p2score);
 		label1.setBackground(Color.BLACK);
 		label1.setForeground(Color.WHITE);
 		label1.setFont(new Font("Buxton Sketch", Font.BOLD, 25));
@@ -121,7 +121,7 @@ public class MemoryFrame extends JFrame {
 									cards[previ][prevj].setBorderPainted(false);
 									cards[previ][prevj].setIcon(new ImageIcon(""));
 									cards[previ][prevj].setEnabled(false);
-									label1.setText("Player 1:        " + (++player1Pionts));
+									label1.setText("Player 1:        " + (++p1score));
 									clickNum = 1;
 									break;
 								} else {
