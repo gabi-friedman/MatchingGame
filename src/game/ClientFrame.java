@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -28,7 +29,7 @@ public class ClientFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JButton cards[][] = new JButton[4][6];
 	private ImageIcon[] images = new ImageIcon[24];
-	private ImageIcon[][] bottomImage = new ImageIcon[4][6];
+	private ImageIcon[][] bottomImages = new ImageIcon[4][6];
 	private Random random = new Random();
 	private int p1score = 0;
 	private int p2score = 0;
@@ -46,9 +47,12 @@ public class ClientFrame extends JFrame {
 	private PrintStream PS;
 	private int tempi;
 	private int tempj;
-	private PrintWriter pw;
+	private ObjectInputStream ois;
+	private String bottomImage;
+	private PassCards pc;
+	private Command cmd;
 
-	public ClientFrame() throws IOException {
+	public ClientFrame() throws IOException, ClassNotFoundException {
 		setSize(700, 600);
 		setTitle("Memory");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -82,22 +86,18 @@ public class ClientFrame extends JFrame {
 		JLabel topMessage = new JLabel(socketMessage, JLabel.CENTER);
 		top.add(topMessage, BorderLayout.CENTER);
 		board.add(top, BorderLayout.NORTH);
+		
+		
+		
+		
 
-		setUpPics();
+		//setUpPics();
 		//fillPics();
 		
-		Client client = new Client(socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
 		
-
-		/*
-		 * try { ServerSocket serverSocket = new ServerSocket(5643); Socket
-		 * socket = serverSocket.accept(); InputStreamReader inputStream = new
-		 * InputStreamReader(socket.getInputStream()); BR = new
-		 * BufferedReader(inputStream); socketMessage = BR.readLine(); if
-		 * (socketMessage != null) { PS = new
-		 * PrintStream(socket.getOutputStream()); } } catch (Exception e) {
-		 * e.printStackTrace(); }
-		 */
+		
+		Client client = new Client(socketMessage, bottomImage, p1score, p2score, previ, prevj, tempi, tempj);
+		cmd = (Command) ois.readObject();
 
 		ActionListener listener = new ActionListener() {
 			@Override
@@ -108,7 +108,9 @@ public class ClientFrame extends JFrame {
 							// Action Listener not ready yet!!!!!
 							// PS.println("WAIT...");
 							if (clickNum == 1) {
-								cards[i][j].setIcon(bottomImage[i][j]);
+								
+								cmd.command(cards);
+								
 								firstCard = (ImageIcon) cards[i][j].getIcon();
 								previ = i;
 								prevj = j;
@@ -117,7 +119,7 @@ public class ClientFrame extends JFrame {
 							if ((clickNum == 2) && (!cards[i][j].equals(cards[previ][prevj]))) {
 								tempi = i;
 								tempj = j;
-								cards[i][j].setIcon(bottomImage[i][j]);
+								cards[i][j].setIcon(bottomImages[i][j]);
 								secondCard = (ImageIcon) cards[i][j].getIcon();
 								if (secondCard.getImage().equals(firstCard.getImage())) {
 									cards[i][j].setContentAreaFilled(false);
@@ -128,7 +130,8 @@ public class ClientFrame extends JFrame {
 									cards[previ][prevj].setBorderPainted(false);
 									cards[previ][prevj].setIcon(new ImageIcon(""));
 									cards[previ][prevj].setEnabled(false);
-									label1.setText("Player 1:        " + (++p1score));
+									p2score++;
+									cmd.command(label1, label2);
 									clickNum = 1;
 									break;
 								} else {
@@ -145,16 +148,17 @@ public class ClientFrame extends JFrame {
 									// PS.println("GO!");
 								}
 							}
-							pw.writeObject(backOfCards);
-							pw = client.getSocketThread().getOut();
-							pw.println(socketMessage);
-							pw.println(p1score);
-							pw.println(p2score);
-							pw.println(previ);
-							pw.println(prevj);
-							pw.println(tempi);
-							pw.println(tempj);
-							pw.flush();
+							//pw.writeObject(backOfCards);
+//							pw = client.getSocketThread().getOut();
+//							pw.println(bottomImage);
+//							pw.println(socketMessage);
+//							pw.println(p1score);
+//							pw.println(p2score);
+//							pw.println(previ);
+//							pw.println(prevj);
+//							pw.println(tempi);
+//							pw.println(tempj);
+//							pw.flush();
 						}
 					}
 				}
@@ -180,43 +184,7 @@ public class ClientFrame extends JFrame {
 
 	}
 
-	public void setUpPics() {
-		// add to array
-		int counter = 1;
-		for (int i = 0; i < images.length; i++) {
-			images[i] = new ImageIcon("./pic" + (counter) + ".png");
-			i++;
-			images[i] = new ImageIcon("./pic" + (counter) + ".png");
-			counter++;
-		}
-
-		String num;
-		for (int i = 0; i < cards.length; i++) {
-			for (int j = 0; j < cards[i].length; j++) {
-				num = i + "" + j;
-				choices.add(num);
-			}
-		}
-
-	}
-
-	public void fillPics() {
-		for (int i = 0; i < images.length; i++) {
-			int randomI;
-			int randomJ;
-			String location;
-			do {
-				randomI = random.nextInt(5);
-				randomJ = random.nextInt(7);
-				location = String.valueOf(randomI) + String.valueOf(randomJ);
-			} while (!choices.contains(location));
-			choices.remove(String.valueOf(randomI) + String.valueOf(randomJ));
-			bottomImage[Integer.parseInt(String.valueOf(location.charAt(0)))][Integer.parseInt(String.valueOf(location
-					.charAt(1)))] = images[i];
-		}
-	}
-
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		ClientFrame frame = new ClientFrame();
 		frame.setVisible(true);
 	}

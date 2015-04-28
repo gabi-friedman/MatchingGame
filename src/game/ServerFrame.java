@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -28,7 +29,7 @@ public class ServerFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JButton cards[][] = new JButton[4][6];
 	private ImageIcon[] images = new ImageIcon[24];
-	private ImageIcon[][] bottomImage = new ImageIcon[4][6];
+	private ImageIcon[][] bottomImages = new ImageIcon[4][6];
 	private Random random = new Random();
 	private int p1score = 0;
 	private int p2score = 0;
@@ -46,7 +47,10 @@ public class ServerFrame extends JFrame {
 	private PrintStream PS;
 	private int tempi;
 	private int tempj;
-	private PrintWriter pw;
+	private ObjectOutputStream oos;
+	private String bottomImage;
+	private PassCards pc;
+	private PlayerPoints pp; 
 
 	public ServerFrame() throws IOException {
 		setSize(700, 600);
@@ -82,23 +86,20 @@ public class ServerFrame extends JFrame {
 		JLabel topMessage = new JLabel(socketMessage, JLabel.CENTER);
 		top.add(topMessage, BorderLayout.CENTER);
 		board.add(top, BorderLayout.NORTH);
-
+		
 		setUpPics();
 		fillPics();
 		
 		Server server = new Server(bottomImage, socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
+		oos = server.getSocketThread().getOut();
 		
-
-		/*
-		 * try { ServerSocket serverSocket = new ServerSocket(5643); Socket
-		 * socket = serverSocket.accept(); InputStreamReader inputStream = new
-		 * InputStreamReader(socket.getInputStream()); BR = new
-		 * BufferedReader(inputStream); socketMessage = BR.readLine(); if
-		 * (socketMessage != null) { PS = new
-		 * PrintStream(socket.getOutputStream()); } } catch (Exception e) {
-		 * e.printStackTrace(); }
-		 */
-
+		pc = new PassCards(bottomImages);
+		pp = new PlayerPoints(p1score, p2score);
+		
+		oos.writeObject(pc);
+		oos.writeObject(pp);
+		oos.flush();
+		
 		ActionListener listener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent event) {
@@ -108,7 +109,7 @@ public class ServerFrame extends JFrame {
 							// Action Listener not ready yet!!!!!
 							// PS.println("WAIT...");
 							if (clickNum == 1) {
-								cards[i][j].setIcon(bottomImage[i][j]);
+								cards[i][j].setIcon(bottomImages[i][j]);
 								firstCard = (ImageIcon) cards[i][j].getIcon();
 								previ = i;
 								prevj = j;
@@ -117,7 +118,7 @@ public class ServerFrame extends JFrame {
 							if ((clickNum == 2) && (!cards[i][j].equals(cards[previ][prevj]))) {
 								tempi = i;
 								tempj = j;
-								cards[i][j].setIcon(bottomImage[i][j]);
+								cards[i][j].setIcon(bottomImages[i][j]);
 								secondCard = (ImageIcon) cards[i][j].getIcon();
 								if (secondCard.getImage().equals(firstCard.getImage())) {
 									cards[i][j].setContentAreaFilled(false);
@@ -128,7 +129,8 @@ public class ServerFrame extends JFrame {
 									cards[previ][prevj].setBorderPainted(false);
 									cards[previ][prevj].setIcon(new ImageIcon(""));
 									cards[previ][prevj].setEnabled(false);
-									label1.setText("Player 1:        " + (++p1score));
+									p1score++;
+									
 									clickNum = 1;
 									break;
 								} else {
@@ -145,15 +147,15 @@ public class ServerFrame extends JFrame {
 									// PS.println("GO!");
 								}
 							}
-							pw = server.getSocketThread().getOut();
-							pw.println(socketMessage);
-							pw.println(p1score);
-							pw.println(p2score);
-							pw.println(previ);
-							pw.println(prevj);
-							pw.println(tempi);
-							pw.println(tempj);
-							pw.flush();
+							 
+//							pw.println(socketMessage);
+//							pw.println(p1score);
+//							pw.println(p2score);
+//							pw.println(previ);
+//							pw.println(prevj);
+//							pw.println(tempi);
+//							pw.println(tempj);
+//							pw.flush();
 						}
 					}
 				}
@@ -209,7 +211,7 @@ public class ServerFrame extends JFrame {
 				location = String.valueOf(randomI) + String.valueOf(randomJ);
 			} while (!choices.contains(location));
 			choices.remove(String.valueOf(randomI) + String.valueOf(randomJ));
-			bottomImage[Integer.parseInt(String.valueOf(location.charAt(0)))][Integer.parseInt(String.valueOf(location
+			bottomImages[Integer.parseInt(String.valueOf(location.charAt(0)))][Integer.parseInt(String.valueOf(location
 					.charAt(1)))] = images[i];
 		}
 	}
