@@ -5,11 +5,9 @@ import javax.swing.JLabel;
 
 public interface Command {
 	
-	public void command();
-	
-	public void command(JButton[][] cards);
-	
-	public void command(JLabel p1, JLabel p2);
+	public void command(ServerFrame frame);
+	public void command(ClientFrame frame);
 
+	
 	
 }

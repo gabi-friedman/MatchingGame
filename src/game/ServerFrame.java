@@ -90,7 +90,9 @@ public class ServerFrame extends JFrame {
 		setUpPics();
 		fillPics();
 		
-		Server server = new Server(bottomImage, socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
+		ServerCardSetup cardsetup = new ServerCardSetup(bottomImages);
+		
+		Server server = new Server(this);//bottomImage, socketMessage, p1score, p2score, previ, prevj, tempi, tempj);
 		oos = server.getSocketThread().getOut();
 		
 		pc = new PassCards(bottomImages);

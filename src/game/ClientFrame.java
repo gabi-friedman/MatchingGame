@@ -183,6 +183,10 @@ public class ClientFrame extends JFrame {
 		}
 
 	}
+	
+	public ImageIcon[][] getBottomImages(){
+		return  bottomImages;
+	}
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		ClientFrame frame = new ClientFrame();

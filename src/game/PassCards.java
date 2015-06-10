@@ -31,5 +31,17 @@ public class PassCards implements Command{
 		
 	}
 
+	@Override
+	public void command(ServerFrame frame) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void command(ClientFrame frame) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

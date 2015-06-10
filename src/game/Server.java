@@ -36,6 +36,16 @@ public class Server{
 		}
 	}
 
+	
+	public Server(ServerFrame serverFrame) throws IOException {
+		serverSocket = new ServerSocket(3232);
+		Socket socket = serverSocket.accept();
+		if (socket != null) {
+			thread = new SocketThread(serverFrame);
+			thread.start();
+		}
+	}
+
 	public SocketThread getSocketThread() {
 		return thread;
 	}

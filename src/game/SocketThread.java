@@ -16,28 +16,15 @@ public class SocketThread extends Thread {
 	private Socket socket;
 //	private BufferedReader reader;
 	private InputStream in;
-	private String bottomImage;
-	private String socketMessage;
-	private int p1score;
-	private int p2score;
-	private int previ;
-	private int prevj;
-	private int tempi;
-	private int tempj;
+	private ServerFrame frame;
 	private ObjectInputStream reader;
+	private ObjectOutputStream out;
 
-	public SocketThread(){//Socket socket, String bottomImage, String socketMessage, int p1score, int p2score, int previ, int prevj, int tempi, int tempj) {
-		this.socket = socket;
-		this.bottomImage = bottomImage;
-		this.socketMessage = socketMessage;
-		this.p1score = p1score;
-		this.p2score = p2score;
-		this.previ = previ;
-		this.prevj = prevj;
-		this.tempi = tempi;
-		this.tempj = tempj;		
+	public SocketThread(ServerFrame frame){//Socket socket, String bottomImage, String socketMessage, int p1score, int p2score, int previ, int prevj, int tempi, int tempj) {
+		this.frame = frame;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void run() {
 
@@ -46,38 +33,40 @@ public class SocketThread extends Thread {
 			
 			
 			in = socket.getInputStream();
-			
+//			
 			reader = new ObjectInputStream(in);
-			//out = (ObjectOutputStream) socket.getOutputStream();
-			
+		    out = (ObjectOutputStream) socket.getOutputStream();
+//			
 			Command c = (Command) reader.readObject();
-			c.command();
-			c.command(cards);
+			c.command(frame);
 			
 			
 			
-			String inputLine;
-			//while ((inputLine = reader.readLine()) != null) {
-//				bottomImage = inputLine;
-//				socketMessage = reader.readLine(); 
-//				p1score = Integer.valueOf(reader.readLine());
-//				p2score = Integer.valueOf(reader.readLine());
-//				previ = Integer.valueOf(reader.readLine());
-//				prevj = Integer.valueOf(reader.readLine());
-//				tempi = Integer.valueOf(reader.readLine());
-//				tempj = Integer.valueOf(reader.readLine());
+			/*String inputLine;
+			while ((inputLine = reader.readLine()) != null) {
+				bottomImage = inputLine;
+				socketMessage = reader.readLine(); 
+				p1score = Integer.valueOf(reader.readLine());
+				p2score = Integer.valueOf(reader.readLine());
+				previ = Integer.valueOf(reader.readLine());
+				prevj = Integer.valueOf(reader.readLine());
+				tempi = Integer.valueOf(reader.readLine());
+				tempj = Integer.valueOf(reader.readLine());
+				*/
 				
-				
-		//	}
+			//}
 
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 
 	public ObjectOutputStream getOut() {
-		return out;
+		return null;
 	}
 
 }
